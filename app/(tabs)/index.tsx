@@ -1,70 +1,189 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, {useRef, useState} from 'react';
+import {
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity
+} from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+type Message = {
+    text: string;
+    sender: string;
+};
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+const mockMessages: Message[] = [
+    {text: 'Hello, how can I help you?', sender: 'bot'},
+    {text: 'I need help with my order.', sender: 'user'},
+    {text: 'Sure, could you please provide your order number?', sender: 'bot'},
+    {text: 'My order number is 12345.', sender: 'user'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {
+        text: 'Thank you, let me check thatzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz for you.',
+        sender: 'bot'
+    },
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+    {text: 'Thank you, let me check that for you.', sender: 'bot'},
+];
+
+export default function ChatBotScreen() {
+    const [messages, setMessages] = useState<Message[]>(mockMessages);
+    const [input, setInput] = useState('');
+    const flatListRef = useRef<FlatList>(null); // Create a reference to the FlatList
+
+    const sendMessage = () => {
+        if (input.trim() !== '') {
+            setMessages(prevMessages => {
+                const newMessages = [...prevMessages, {text: input, sender: 'user'}];
+                setInput('');
+                setTimeout(() => flatListRef.current?.scrollToEnd({animated: true}), 0); // Scroll to the end of the FlatList
+                return newMessages;
+            });
+        }
+    };
+
+    const renderMessage = ({item}: { item: Message }) => (
+        <Text style={item.sender === 'user' ? styles.userMessage : styles.botMessage}>
+            {item.text}
+        </Text>
+    );
+
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <FlatList
+                ref={flatListRef} // Assign the reference to the FlatList
+                data={messages}
+                renderItem={renderMessage}
+                keyExtractor={(item, index) => index.toString()}
+                style={styles.chatContainer}
+                onContentSizeChange={() => flatListRef.current?.scrollToEnd({animated: true})} // Scroll to the end whenever the content size changes
+            />
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={styles.inputContainer}
+            >
+                <TextInput
+                    style={styles.input}
+                    value={input}
+                    onChangeText={setInput}
+                    onSubmitEditing={sendMessage} // Call sendMessage when the Enter key is pressed
+                    placeholder="Type your message here..."
+                />
+                <TouchableOpacity style={styles.button} onPress={sendMessage}>
+                    <Text style={styles.buttonText}>Send</Text>
+                </TouchableOpacity>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+    container: {
+        flex: 1,
+        justifyContent: 'space-between',
+        backgroundColor: '#f5f5f5',
+        padding: 10,
+    },
+    chatContainer: {
+        flex: 1,
+        padding: 10,
+        marginBottom: 10,
+        backgroundColor: '#fff',
+        borderRadius: 5,
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        padding: 10,
+        backgroundColor: '#fff',
+        borderRadius: 5,
+    },
+    input: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 5,
+        padding: 10,
+        marginRight: 10,
+    },
+    userMessage: {
+        alignSelf: 'flex-end',
+        backgroundColor: '#0a84ff',
+        color: '#fff',
+        padding: 10,
+        borderRadius: 10,
+        marginBottom: 5,
+        maxWidth: '80%',
+    },
+    botMessage: {
+        alignSelf: 'flex-start',
+        backgroundColor: '#30d158',
+        color: '#fff',
+        padding: 10,
+        borderRadius: 10,
+        marginBottom: 5,
+        maxWidth: '80%',
+    },
+    button: {
+        backgroundColor: '#0a84ff',
+        padding: 10,
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 80,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
 });
