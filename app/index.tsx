@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, Image, Text, TextInput, TouchableOpacity, ScrollView, Dimensions} from 'react-native';
+import {Dimensions, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 
 type ChatHeaderProps = {
     name: string;
@@ -8,34 +8,24 @@ type ChatHeaderProps = {
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ name, status }) => (
+const ChatHeader: React.FC<ChatHeaderProps> = ({name, status}) => (
     <View style={styles.chatHeader}>
         <View style={styles.chatHeaderLeft}>
-            <Image
-                resizeMode="contain"
-                source={{ uri: "assets/back-button.svg" }}
-                style={styles.avatar}
-            />
             <View style={styles.chatHeaderInfo}>
                 <Image
                     resizeMode="contain"
-                    source={{ uri: "assets/chatbot.svg" }}
+                    source={{uri: "assets/chatbot.svg"}}
                     style={styles.avatar}
                 />
                 <View>
                     <Text style={styles.chatHeaderName}>{name}</Text>
                     <View style={styles.statusIndicator}>
-                        <View style={styles.statusDot} />
+                        <View style={styles.statusDot}/>
                         <Text style={styles.statusText}>{status}</Text>
                     </View>
                 </View>
             </View>
         </View>
-        <Image
-            resizeMode="contain"
-            source={{ uri: "assets/three-dot.svg" }}
-            style={styles.chatHeaderIcon}
-        />
     </View>
 );
 
@@ -45,7 +35,7 @@ type MessageProps = {
     timestamp?: string;
 };
 
-const Message: React.FC<MessageProps> = ({ content, isUser, timestamp }) => (
+const Message: React.FC<MessageProps> = ({content, isUser, timestamp}) => (
     <View style={styles.messageContainer}>
         {timestamp && (
             <Text style={styles.timestamp}>{timestamp}</Text>
@@ -54,7 +44,7 @@ const Message: React.FC<MessageProps> = ({ content, isUser, timestamp }) => (
             {!isUser && (
                 <Image
                     resizeMode="contain"
-                    source={{ uri: "assets/chatbot.svg" }}
+                    source={{uri: "assets/chatbot.svg"}}
                     style={styles.botAvatar}
                 />
             )}
@@ -63,12 +53,12 @@ const Message: React.FC<MessageProps> = ({ content, isUser, timestamp }) => (
     </View>
 );
 
-const ChatInput: React.FC = () => {
+const ChatInput: React.FC<{ onSendMessage: (message: string) => void }> = ({onSendMessage}) => {
     const [message, setMessage] = useState('');
 
     const handleSend = () => {
         if (message.trim().length > 0) {
-            console.log(message);
+            onSendMessage(message);
             setMessage('');
         }
     };
@@ -87,7 +77,7 @@ const ChatInput: React.FC = () => {
             <TouchableOpacity onPress={handleSend}>
                 <Image
                     resizeMode="contain"
-                    source={{ uri: "assets/send-button.svg" }}
+                    source={{uri: "assets/send-button.svg"}}
                     style={styles.sendButton}
                 />
             </TouchableOpacity>
@@ -95,22 +85,66 @@ const ChatInput: React.FC = () => {
     );
 };
 
+const postMessageToBot = async (message: string) => {
+    try {
+        const response = await fetch('http://0.0.0.0:8000/api/v1/chat/generateAnswer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept-Encoding': 'gzip, deflate, br'
+            },
+            mode: 'no-cors',
+            body: JSON.stringify({
+                "session_id": '1',
+                "sender_message": message
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error posting message to bot:', error);
+        return null;
+    }
+};
+
 export default function ChatScreen() {
+    const [messages, setMessages] = useState<MessageProps[]>([]);
+
+    const handleSendMessage = async (userMessage: string) => {
+        const newMessage: MessageProps = {
+            content: userMessage,
+            isUser: true,
+        };
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+        const botResponse = await postMessageToBot(userMessage);
+        if (botResponse && botResponse.message) {
+            const botMessage: MessageProps = {
+                content: botResponse.message,
+                isUser: false,
+                timestamp: new Date().toLocaleString(),
+            };
+            setMessages((prevMessages) => [...prevMessages, botMessage]);
+        }
+    };
     return (
         <View style={styles.container}>
-            <ChatHeader name="ArgoAI+" status="Always active" />
+            <ChatHeader name="ArgoAI+" status="Always active"/>
             <ScrollView style={styles.chatContent}>
-                <Message
-                    content="This is a bot message"
-                    isUser={false}
-                    timestamp="Nov 1, 2023, 8:00 AM"
-                />
-                <Message
-                    content="This is a user message"
-                    isUser={true}
-                />
+                {messages.map((message, index) => (
+                    <Message
+                        key={index}
+                        content={message.content}
+                        isUser={message.isUser}
+                        timestamp={message.timestamp}
+                    />
+                ))}
             </ScrollView>
-            <ChatInput />
+            <ChatInput onSendMessage={handleSendMessage}/>
         </View>
     );
 };
@@ -240,7 +274,7 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     messageText: {
-        color: "#202325",
+        color: "#fff",
     },
     inputContainer: {
         flexDirection: 'row',
