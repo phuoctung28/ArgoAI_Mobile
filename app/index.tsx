@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Dimensions, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import Markdown from 'react-native-markdown-display';
 
 type ChatHeaderProps = {
     name: string;
@@ -48,7 +49,11 @@ const Message: React.FC<MessageProps> = ({content, isUser, timestamp}) => (
                     style={styles.botAvatar}
                 />
             )}
-            <Text style={styles.messageText}>{content}</Text>
+            <Text style={styles.messageText}>
+                <Markdown>
+                    {content}
+                </Markdown>
+            </Text>
         </View>
     </View>
 );
@@ -87,13 +92,13 @@ const ChatInput: React.FC<{ onSendMessage: (message: string) => void }> = ({onSe
 
 const postMessageToBot = async (message: string) => {
     try {
-        const response = await fetch('http://0.0.0.0:8000/api/v1/chat/generateAnswer', {
+        const response = await fetch('http://localhost:8000/api/v1/chat/generateAnswer', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept-Encoding': 'gzip, deflate, br'
             },
-            mode: 'no-cors',
+
             body: JSON.stringify({
                 "session_id": '1',
                 "sender_message": message
@@ -122,9 +127,9 @@ export default function ChatScreen() {
         setMessages((prevMessages) => [...prevMessages, newMessage]);
 
         const botResponse = await postMessageToBot(userMessage);
-        if (botResponse && botResponse.message) {
+        if (botResponse && botResponse.response) {
             const botMessage: MessageProps = {
-                content: botResponse.message,
+                content: botResponse.response,
                 isUser: false,
                 timestamp: new Date().toLocaleString(),
             };
@@ -266,7 +271,8 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         borderBottomLeftRadius: 0,
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
+        color: '#3C9D78'
     },
     botAvatar: {
         width: 32,
@@ -274,7 +280,7 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     messageText: {
-        color: "#fff",
+        color: "#202325",
     },
     inputContainer: {
         flexDirection: 'row',

@@ -6,7 +6,10 @@ import 'react-native-reanimated';
 import {useColorScheme} from '@/hooks/useColorScheme';
 import {Colors} from "@/constants/Colors";
 import {Tabs} from "expo-router";
-import {FontAwesome} from "@expo/vector-icons";
+import {FontAwesome, FontAwesome5} from "@expo/vector-icons";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import Entypo from '@expo/vector-icons/Entypo';
+
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -39,8 +42,7 @@ export default function RootLayout() {
                     options={{
                         tabBarLabel: 'Chat',
                         tabBarIcon: ({color}) => (
-                            <FontAwesome name="wechat" color={color} size={25}/>
-                        )
+                            <Entypo name="chat" size={24} color={color} />)
                     }}
                 />
                 <Tabs.Screen
@@ -48,17 +50,16 @@ export default function RootLayout() {
                     options={{
                         tabBarLabel: 'Home',
                         tabBarIcon: ({color}) => (
-                            <FontAwesome name="home" color={color} size={25}/>
+                            <FontAwesome name="home" color={color} size={24}/>
                         )
                     }}
                 />
                 <Tabs.Screen
                     name={'+not-found'}
                     options={{
-                        tabBarLabel: 'Oops!',
+                        tabBarLabel: 'Setting',
                         tabBarIcon: ({color}) => (
-                            <FontAwesome name="home" color={color} size={25}/>
-                        )
+                            <Ionicons name="settings-sharp" size={24} color={color} />                        )
                     }}
                 />
             </Tabs>
